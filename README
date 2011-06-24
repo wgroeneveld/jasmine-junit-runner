@@ -1,0 +1,27 @@
+## Jasmine Junit Runner
+
+What's this? Quite simple, it's a custsom Java Junit Runner that allows you to embed Javascript Unit tests (using Jasmine) in your Java-based projects. It fully integrates with your most beloved IDE, your most hated version control system and of course your most needed CI env. 
+
+So let's rephrase:
+
+* Run Javascript (the <a href="https://github.com/pivotal/jasmine">Jasmine</a> - behavior driven - way) "specs" in Java
+* Talks like a duck-erhm, any other Junit Java test. Just use a custom annotation (see below)
+* Executes super-fast. No browser required. Hocus-pocus. (Rhino + Envjs magic)
+
+## What Do I need to do? 
+
+1) Fork this project. 
+2) Create some Jasmine specs, place them in some folder.
+3) Create a Junit test class, annotate it with @RunWith(JasmineTestRunner.class)
+4) Fill in the blanks using @JasmineSuite
+
+## More options
+
+@JasmineSuite allows you to set these options:
+
+* debug: use the built-in Rhino debugger (gives you the chance to set a breakpoint before firing the test suite-
+* jsRootDir: the javascript install root dir. Jasmine and other should be installed here (see source)
+* sourcesRootDir: your production JS files root dir.
+* specs: one or more spec file to run. Default behavior: use java Class name (replaces Test with Spec, see example)
+* sources: one or more JS production file which your spec needs (included before specs, d'uh)
+* generateSpecRunner: (the HTML output, useful for firefox/firebug debugging etc)
