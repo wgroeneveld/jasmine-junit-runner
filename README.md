@@ -151,3 +151,81 @@ When the debug mode flag has been set to _true_, you can use the <a href="http:/
 After pressing "GO", the tests will run and you can inspect stuff and step through the code.
 
 Integrated debugging into for example Eclipse does not work for the moment. 
+
+* * *
+
+# Advanced: Implementation details
+
+## RhinoContext API
+
+The _RhinoContext_ class is basically a wrapper/facade/whatever which allows you to easily manipulate the Javascript scope. 
+Read <a href="https://developer.mozilla.org/En/Rhino_documentation/Scopes_and_Contexts" target="_blank">Rhino docs: scopes and contexts</a> first please!
+
+Creating a new RhinoContext initializes one "root" scope (toplevel), and assignes one context to the current Thread. 
+
+### Evaluating async javascript code
+
+Creating another RhinoContext while passing the root scope, uses prototypal inheritance to create a new toplevel scope. This means the root scope is shared across different contexts (and thus different threads). 
+You can execute the _runAsync_ method, which does this:
+
+* create a new thread and thus a new context
+* create a new scope based on the root one -> shared
+* execute stuff in the new scope (You can access root JS functions but not modify them, remember prototypal inheritance!)
+* cleanup
+
+For example, JasmineSpec uses the _execute_ Jasmine JS function on a spec and calls it in another thread:
+
+```java
+        baseContext.runAsync(new RhinoRunnable() {
+
+            @Override
+            public void run(RhinoContext context) {
+			    // get some random spec from Jasmine
+			    NativeObject someSpec = (NativeObject) context.evalJS("jasmine.getEnv().currentRunner().suites()[0].specs()[0]");
+                context.executeFunction(someSpec, "execute");
+            }
+        });
+ ``
+
+### Creating a Rhino debugger
+ 
+Basically creates a _org.mozilla.javascript.tools.debugger.Main_ object. Pitfall: create before loading all required JS files, but after creating the rhino context!
+To acutally break once (so users can set breakpoints and press GO), use this:
+
+> debugger.doBreak();	
+
+### Executing functions
+
+_executeFunction_ is a convenience method to call a function on a passed NativeObject. The function pointer may reside in the object's prototype, you don't need to explicitly check this in Javascript but you do using Rhino! 
+
+## Envjs Utils/Hacks
+
+### Error.stack fix
+
+In firefox, you can get a stacktrace from a JS exception using:
+
+> new Error("BOOM").stack
+
+Of course this does not work in Envjs. But Rhino attaches an internal _rhinoException_ to each JS Error object, so using a bit of magic, now it's possible to call _getStackTrace()_
+
+### Envjs.uri Windows relative paths fix
+
+Use _file:///_ (three forward slashes) if no context has been provided. Works like this:
+
+```javascript
+Envjs.uri(path, "file:///" + ("" + Envjs.getcwd()).replace(/\\/g, '/') + "/")
+```
+
+### window.setTimeout fix
+
+Used by Jasmine internally for async spec execution, but for some reason the Envjs Javascript implementation is broken. 
+A simple fix is possible, since using Rhino you can call Java objects in Javascript space! Wow awesome. So just create a new thread and use _sleep_:
+
+```javascript
+	window.setTimeout = function(closure, timeout) {
+		spawn(function() {
+			java.lang.Thread.sleep(timeout);
+			closure();
+		});
+	};
+```
