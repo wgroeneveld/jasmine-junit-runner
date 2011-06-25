@@ -185,7 +185,7 @@ For example, JasmineSpec uses the _execute_ Jasmine JS function on a spec and ca
                 context.executeFunction(someSpec, "execute");
             }
         });
- ``
+```
 
 ### Creating a Rhino debugger
  
