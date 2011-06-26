@@ -2,7 +2,6 @@ package be.cegeka.junit.jasmine;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
@@ -134,14 +133,10 @@ public class JasmineTestRunner extends Runner {
     }
 
     private void fireMethodsWithSpecifiedAnnotationIfAny(Object testClassInstance, Class<? extends Annotation> annotation) {
-        for (Method method : testClass.getDeclaredMethods()) {
+        for (Method method : testClass.getMethods()) {
 
             try {
                 if (method.getAnnotation(annotation) != null) {
-                    if (!Modifier.isPublic(method.getModifiers())) {
-                        throw new IllegalStateException("Annotated method should be public!");
-                    }
-
                     method.setAccessible(true);
                     Class<?>[] parameterTypes = method.getParameterTypes();
                     if (parameterTypes.length == 0) {
