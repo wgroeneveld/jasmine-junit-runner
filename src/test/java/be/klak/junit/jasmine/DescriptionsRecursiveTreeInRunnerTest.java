@@ -16,7 +16,7 @@ public class DescriptionsRecursiveTreeInRunnerTest {
 		Description baseTestDescription = new JasmineTestRunner(RecursiveTreeTest.class).getDescription();
 		assertThat(baseTestDescription.getDisplayName()).contains(RecursiveTreeTest.class.getSimpleName());
 
-		assertThat(baseTestDescription.getChildren()).hasSize(1);
+		assertThat(baseTestDescription.getChildren()).hasSize(2);
 		Description root = baseTestDescription.getChildren().get(0);
 		assertThat(root.getDisplayName()).isEqualTo("root");
 		assertThat(root.getChildren()).hasSize(3);
@@ -24,6 +24,12 @@ public class DescriptionsRecursiveTreeInRunnerTest {
 		assertThat(root.getChildren().get(0).getDisplayName()).isEqualTo("rootTest");
 		assertChild1AndChildren(root);
 		assertChild2AndChildren(root);
+
+		Description root2 = baseTestDescription.getChildren().get(1);
+		assertThat(root2.getDisplayName()).isEqualTo("root2");
+		assertThat(root2.getChildren()).hasSize(1);
+
+		assertThat(root2.getChildren().get(0).getDisplayName()).isEqualTo("root2Test");
 	}
 
 	private void assertChild2AndChildren(Description root) {
