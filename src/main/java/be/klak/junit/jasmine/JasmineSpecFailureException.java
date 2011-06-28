@@ -3,17 +3,17 @@ package be.klak.junit.jasmine;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.ScriptableObject;
 
-public class JasmineSpecFailureException extends Exception {
+class JasmineSpecFailureException extends Exception {
 
-    private final ScriptableObject trace;
+	private final ScriptableObject trace;
 
-    public JasmineSpecFailureException(NativeObject specResultItem) {
-        this.trace = (ScriptableObject) specResultItem.get("trace", specResultItem);
-    }
+	public JasmineSpecFailureException(NativeObject specResultItem) {
+		this.trace = (ScriptableObject) specResultItem.get("trace", specResultItem);
+	}
 
-    @Override
-    public String getMessage() {
-        return (String) trace.get("message", trace);
-    }
+	@Override
+	public String getMessage() {
+		return (String) trace.get("message", trace);
+	}
 
 }

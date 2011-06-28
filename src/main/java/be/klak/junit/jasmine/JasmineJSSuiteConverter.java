@@ -10,7 +10,7 @@ import org.mozilla.javascript.NativeObject;
 
 import be.klak.rhino.RhinoContext;
 
-public class JasmineJSSuiteConverter {
+class JasmineJSSuiteConverter {
 
 	private final RhinoContext context;
 
@@ -36,7 +36,7 @@ public class JasmineJSSuiteConverter {
 				specs.addAll(convertToJunitDescription(suite, suiteDescription));
 
 				NativeArray subSuites = (NativeArray) context.executeFunction(suite, "suites");
-				convertSuiteArrayToDescriptions(subSuites, suiteDescription, processed);
+				specs.addAll(convertSuiteArrayToDescriptions(subSuites, suiteDescription, processed));
 			}
 		}
 

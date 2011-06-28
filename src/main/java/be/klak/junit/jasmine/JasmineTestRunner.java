@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.tools.debugger.Main;
 
@@ -35,7 +36,7 @@ public class JasmineTestRunner extends Runner {
 
 		Main debugger = null;
 		if (this.suiteAnnotation.debug()) {
-			debugger = this.rhinoContext.createDebugger();
+			debugger = createDebugger();
 		}
 
 		this.rhinoContext = setUpRhinoScope();
@@ -60,6 +61,23 @@ public class JasmineTestRunner extends Runner {
 		context.load(getJsLibDir() + "jasmine.delegator_reporter.js");
 
 		context.evalJS("jasmine.getEnv().addReporter(new jasmine.DelegatorJUnitReporter());");
+	}
+
+	private Main createDebugger() {
+		Main debugger = new Main("JS Debugger");
+
+		debugger.setExitAction(new Runnable() {
+			public void run() {
+				System.exit(0);
+			}
+		});
+
+		debugger.attachTo(ContextFactory.getGlobal());
+		debugger.pack();
+		debugger.setSize(600, 460);
+		debugger.setVisible(true);
+
+		return debugger;
 	}
 
 	private JasmineSuite getJasmineSuiteAnnotationFromTestClass() {
