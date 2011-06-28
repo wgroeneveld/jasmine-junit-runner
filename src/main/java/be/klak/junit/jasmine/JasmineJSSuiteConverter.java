@@ -10,7 +10,7 @@ import org.mozilla.javascript.NativeObject;
 
 import be.klak.rhino.RhinoContext;
 
-public class JasmineJSSuiteConverter {
+class JasmineJSSuiteConverter {
 
 	private final RhinoContext context;
 

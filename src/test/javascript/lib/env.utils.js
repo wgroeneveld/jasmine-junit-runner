@@ -55,6 +55,7 @@
  * Envjs specific hacks
  * 1) Fix Envjs relative path system to work with Windows path systems
  * 2) Fix window.setTimeout() using Rhino specific functions
+ * 3) Fix CSS2Properties support: all properties have the same objmaps, wtf?
  */
 (function() {
 
@@ -73,4 +74,17 @@
 		});
 	};
 
+	(function(css) {
+
+		var setCssProperty = css.prototype.setProperty;
+		css.prototype.setProperty = function(name, value) {
+			// create a shallow clone of __supportedStyles__ (styleIndex' default value) if prototype not yet set
+			if(Object.keys(Object.getPrototypeOf(this.styleIndex)).length === 0) {
+				this.styleIndex = Object.create(this.styleIndex);
+			}
+			
+			return setCssProperty.call(this, name, value);
+		}
+	})(CSS2Properties);
+	
 })();
