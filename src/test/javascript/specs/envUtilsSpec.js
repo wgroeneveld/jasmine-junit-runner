@@ -1,31 +1,11 @@
 
-importPackage(org.apache.commons.io);
-importPackage(java.io);
-
-var loadFixtures = function() {
-	this.fixturesPath = "src/test/javascript/specs/fixtures";
-	
-	var read = "";
-	for(var i = 0; i < arguments.length; i++) {
-		read += FileUtils.readFileToString(new File(this.fixturesPath, arguments[i]));
-	}
-	
-	document.body.innerHTML = document.body.innerHTML + read;
-}
-
-var cleanupFixtures = function() {
-	document.body.innerHTML = "";
-}
-
 describe("envjs fixes", function() {
 
 	describe("CSS2 style property support for parsing style attributes", function() {
 		beforeEach(function() {
 			loadFixtures("styleAttributes.html");
 		});
-		
-		afterEach(cleanupFixtures);
-		
+			
 		it("should get a style attribute from a static DOM element", function() {
 			var div = document.getElementById("div");
 			expect(div.style.color).toBe("blue");

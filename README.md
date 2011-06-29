@@ -41,7 +41,9 @@ So let's rephrase:
 * Talks like a duck-erhm, any other Junit Java test. Just use a custom annotation (see below)
 * Executes super-fast. No browser required. Hocus-pocus. (Rhino + Envjs magic)
 
-## Does this thing generate Junit XML?
+## Does this thing support ...
+
+### Generation of Junit XML Results?
 
 Yes and no. Not explicitly using the Jasmine Junit XML Reporter, but since it's a Java Junit Result, your build process will do that for you. 
 Maven surefire plugins will generate the needed result files, for Jenkins to pick up. Your stacktrace/failure message will be something like:
@@ -49,6 +51,30 @@ Maven surefire plugins will generate the needed result files, for Jenkins to pic
 > Expected x to be y (zz.js, #458)
 
 Just like the default Jasmine HTML reporter.
+(So, to answer the question: yes!)
+
+### GUI Testing with Envjs? 
+
+Yes! It allows you to test your jQuery plugins or your spaghetti GUI+Logic code, neatly woven together.
+You can use <a href="https://github.com/velesin/jasmine-jquery" target="_blank">jasmine-jquery</a> matchers. I've modified `jasmine.Fixtures` to support Envjs+Rhino. This means you can test stuff like this:
+
+```javascript
+beforeEach(function() {
+  loadFixtures("myFixture.html");
+});
+
+it("should be visible and blue", function() {
+  var div = $('#myDivInFixtureHtml');
+  expect(div).toBeVisible();
+  expect(div.css('color')).toBe('blue');
+});
+```
+
+Fixtures are automatically cleaned up. See src/test/javascript/lib/jasminedir/jasmine-jquery-rhino.js
+
+#### But wait, CSS Style Parsing does not work in Envjs 1.2, how come this does?
+
+See env.utils.js. Cover your eyes - hacks present. 
 
 ## What Do I need to do? 
 
