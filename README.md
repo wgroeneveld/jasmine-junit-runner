@@ -76,16 +76,26 @@ Fixtures are automatically cleaned up. See src/test/javascript/lib/jasminedir/ja
 
 See env.utils.js. Cover your eyes - hacks present. 
 
-## What Do I need to do? 
+### Debugging 'n stuff?
+
+Yes! When the debug mode flag in `@JasmineSuite` has been set to `true`, you can use the <a href="http://www.mozilla.org/rhino/debugger.html" target="_blank">Rhino Debugger</a> to set breakpoints.
+After pressing "GO", the tests will run and you can inspect stuff and step through the code.
+
+#### What about integrated debugging inside my IDE?
+
+Tough luck. I've tried to get <a href="http://wiki.eclipse.org/JSDT" target="_blank">JSDT</a> working but no avail. 
+You can still use Firebug to debug when generating a specRunner HTML file (see below).
+
+## Excellent! What Do I need to do? 
 
 1. Fork this project. 
 2. Create some Jasmine specs, place them in some folder.
-3. Create a Junit test class, annotate it with _@RunWith(JasmineTestRunner.class)_
-4. Fill in the blanks using @JasmineSuite
+3. Create a Junit test class, annotate it with `@RunWith(JasmineTestRunner.class)`
+4. Fill in the blanks using `@JasmineSuite`
 
 ## More options
 
-_@JasmineSuite_ allows you to set these options:
+`@JasmineSuite` allows you to set these options:
 
 * debug: use the built-in Rhino debugger (gives you the chance to set a breakpoint before firing the test suite)
 * jsRootDir: the javascript install root dir. Jasmine and other should be installed here (see source)
@@ -100,7 +110,7 @@ Currently, Jasmine Junit Runner relies on Rhino 1.7R2 (+ es5-shim) & Envjs 1.2 t
 
 ### Dependencies Overview
 
-See the _pom.xml_ (Maven2) - you can build the whole thing using:
+See the `pom.xml` (Maven2) - you can build the whole thing using:
 
 > mvn clean install  
 
@@ -139,7 +149,7 @@ describe("my awesome code", function() {
 });
 ```
 
-### Using Junit's _@Before_ and _@After_ 
+### Using Junit's `@Before` and `@After_`
 
 It's possible to do some extra work before and after each spec run:
 
@@ -168,8 +178,8 @@ public class MyAwesomeTest {
 
 What's happening?
 
-* You can define n number of _PUBLIC_ methods annotated with @Before or @After
-* You can, but don't have to, take the _RhinoContext_ object as the only parameter. This allows you to set stuff up in JS space before running the spec.
+* You can define n number of _PUBLIC_ methods annotated with `@Before` or `@After`
+* You can, but don't have to, take the `RhinoContext` object as the only parameter. This allows you to set stuff up in JS space before running the spec.
 
 ### Generating a spec runner
 
@@ -201,10 +211,3 @@ Your awesome test (example 1) would for instance generate this html file:
 ```
 
 You can inspect the output using firefox, or debug in your spec file using firebug.
-
-### Debugging in Java
-
-When the debug mode flag has been set to _true_, you can use the <a href="http://www.mozilla.org/rhino/debugger.html" target="_blank">Rhino Debugger</a> to set breakpoints.
-After pressing "GO", the tests will run and you can inspect stuff and step through the code.
-
-Integrated debugging into for example Eclipse does not work for the moment. 
