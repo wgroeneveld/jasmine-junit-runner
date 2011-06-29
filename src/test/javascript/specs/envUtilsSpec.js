@@ -1,7 +1,26 @@
 
 describe("envjs fixes", function() {
 
-	describe("CSS2 style property support", function() {
+	describe("CSS2 style property support for parsing style attributes", function() {
+		beforeEach(function() {
+			loadFixtures("styleAttributes.html");
+		});
+			
+		it("should get a style attribute from a static DOM element", function() {
+			var div = document.getElementById("div");
+			expect(div.style.color).toBe("blue");
+		});
+		
+		it("should get a style attribute with dashes using camelCasing properties", function() {
+			var spanStyle = document.getElementById("span").style;
+			
+			expect(spanStyle.backgroundColor).toBe("green");
+			expect(spanStyle.fontSize).toBe("8pt");
+			expect(spanStyle.fontFamily).toBe("verdana");
+		});
+	});
+	
+	describe("CSS2 style property support for setting values", function() {
 
 		var someColor = "#FFFFFF";
 		var someFont = "12px 'Bitstream Vera Sans Mono','Courier',monospace";
