@@ -55,7 +55,8 @@
  * Envjs specific hacks
  * 1) Fix Envjs relative path system to work with Windows path systems
  * 2) Fix window.setTimeout() using Rhino specific functions
- * 3) Fix CSS2Properties support: all properties have the same objmaps, wtf?
+ * 3) Fix CSS2Properties support for parsing style attributes: get from raw node context.
+ * 4) Fix CSS2Properties support for setting values: all properties have the same objmaps, wtf?
  */
 (function() {
 
@@ -74,6 +75,29 @@
 		});
 	};
 
+	(function(Element) {
+	
+		var style = "style";
+		function lookupStyleInNodeAttributes(el) {
+			if(el.attributes) {
+				for(var i = 0; i < el.attributes.length; i++) {
+					if(el.attributes[i].nodeName === style) {
+						return el.attributes[i].nodeValue;
+					}
+				}
+			}
+		}
+
+		var styleSetFn = Element.__lookupGetter__(style);		
+		Element.__defineGetter__(style, function() {	
+			if(!this.cssText) {
+				this.cssText = lookupStyleInNodeAttributes(this);
+			}
+			return styleSetFn.apply(this);
+		});
+	
+	})(HTMLElement.prototype);
+	
 	(function(css) {
 
 		var setCssProperty = css.prototype.setProperty;
@@ -82,9 +106,8 @@
 			if(Object.keys(Object.getPrototypeOf(this.styleIndex)).length === 0) {
 				this.styleIndex = Object.create(this.styleIndex);
 			}
-			
+
 			return setCssProperty.call(this, name, value);
 		}
 	})(CSS2Properties);
-	
 })();
