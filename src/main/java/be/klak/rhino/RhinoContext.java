@@ -108,9 +108,6 @@ public class RhinoContext {
 	}
 
 	public void loadEnv(String jsDir) {
-		// TODO ensure rhino 1.7R3 instead of R2 -> geen shim nodig + paths
-		// gedoe in orde zetten hier
-		load(jsDir + "/lib/es5-shim-0.0.4.min.js");
 		load(jsDir + "/lib/env.rhino.1.2.js");
 		load(jsDir + "/lib/env.utils.js");
 		load(jsDir + "/envJsOptions.js");
@@ -125,7 +122,7 @@ public class RhinoContext {
 	private Context createJavascriptContext() {
 		Context jsContext = ContextFactory.getGlobal().enterContext();
 		jsContext.setOptimizationLevel(-1);
-		jsContext.setLanguageVersion(Context.VERSION_1_5); // TODO 1.8 plx
+		jsContext.setLanguageVersion(Context.VERSION_1_8);
 		jsContext.setErrorReporter(new ChainedErrorReporter(jsContext.getErrorReporter()));
 		return jsContext;
 	}
