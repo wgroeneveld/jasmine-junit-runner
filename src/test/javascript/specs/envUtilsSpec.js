@@ -1,6 +1,44 @@
 
 describe("envjs fixes", function() {
 
+	describe("Envjs event handling fixes", function() {
+		beforeEach(function() {
+			loadFixtures("formevents.html");
+		});
+		
+		describe("focussing events", function() {
+			it("should set activeElement when focussing an input element", function() {
+				$("#input").focus();
+				expect(document.activeElement.id).toBe("input");
+				expect($(":focus")).toBe("#input");
+			});
+			
+			it("should set activeElement when focussing a textarea element", function() {
+				$("#area").focus();
+				expect(document.activeElement.id).toBe("area");
+				expect($(":focus")).toBe("#area");
+			});
+		});
+		
+		describe("form submit events", function() {
+			it("should be able to catch a formsubmit event", function() {
+				var submitted = false;
+				$("#form").submit(function() {
+					submitted = true;
+				});
+				
+				$("#form").submit();
+				waitsFor(function() {
+					return submitted === true;
+				});
+				
+				runs(function() {
+					expect(submitted).toBeTruthy();
+				});
+			});
+		});
+	});
+	
 	describe("CSS2 style property support for parsing style attributes", function() {
 		beforeEach(function() {
 			loadFixtures("styleAttributes.html");
@@ -52,20 +90,111 @@ describe("envjs fixes", function() {
 	
 	});
 	
-	describe("window setTimeout", function() {
+	describe("timer based events", function() {
 	
-		it("should wait one second before executing", function() {
-			var done = false;
-			window.setTimeout(function() {
-				done = true;
-			}, 1000);
-		
-			waitsFor(function() {
-				return done === true;
+		describe("setTimeout", function() {
+			it("should wait one second before executing", function() {
+				var done = false;
+				window.setTimeout(function() {
+					done = true;
+				}, 50);
+				
+				waitsFor(function() {
+					return done === true;
+				});
+				
+				runs(function() {
+					expect(done).toBeTruthy();
+				});
 			});
+			
+			it("should return a unique timerID when the timeout has been set which can be cancelled", function() {
+				var done = false;
+				var timerID = window.setTimeout(function() {
+					done = true;
+				}, 10);
+				var timerID2 = window.setTimeout(function() { }, 10);
+
+				window.clearTimeout(timerID);
+				waits(50);
+				
+				runs(function() {
+					expect(typeof(timerID)).toEqual("number");
+					expect(timerID).not.toEqual(timerID2);
+					expect(done).toBeFalsy();
+				});
+			});
+			
+			it("should be able to use clearInterval for timeouts", function() {
+				var done = false;
+				var timerID = window.setTimeout(function() {
+					done = true;
+				}, 10);
+
+				window.clearInterval(timerID);
+				waits(50);
+				
+				runs(function() {
+					expect(done).toBeFalsy();
+				});
+			});
+		});
 		
-			runs(function() {
-				expect(done).toBeTruthy();
+		describe("setInterval", function() {
+			it("should call the callback method x times until the interval has been stopped", function() {
+				var count = 0, storedCount;
+				var intervalId = window.setInterval(function() {
+					count++;
+				}, 20);
+				
+				waitsFor(function() {
+					return count > 3;
+				});
+				
+				runs(function() {
+					storedCount = count;
+					window.clearInterval(intervalId);
+				});
+				waits(100);
+				
+				runs(function() {
+					expect(storedCount).toEqual(count);
+				});
+			});
+			
+			it("should be able to use setTimeout and setInterval which create unique return IDs", function() {
+				var id1 = window.setTimeout(function() {}, 10);
+				var id2 = window.setInterval(function() {}, 10);
+				
+				waits(50);
+				this.after(function() {
+					window.clearInterval(id2);
+				});
+				
+				runs(function() {
+					expect(id1 < id2).toBeTruthy();
+				});
+			});
+			
+			it("should be able to use clearTimeout for intervals", function() {
+				var count = 0, storedCount;
+				var intervalId = window.setInterval(function() {
+					count++;
+				}, 10);
+				
+				waitsFor(function() {
+					return count > 1;
+				});
+				
+				runs(function() {
+					storedCount = count;
+					window.clearTimeout(intervalId);
+				});
+				waits(100);
+				
+				runs(function() {
+					expect(storedCount).toEqual(count);
+				});
 			});
 		});
 	

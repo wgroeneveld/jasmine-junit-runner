@@ -54,9 +54,9 @@
 /**
  * Envjs specific hacks
  * 1) Fix Envjs relative path system to work with Windows path systems
- * 2) Fix window.setTimeout() using Rhino specific functions
- * 3) Fix CSS2Properties support for parsing style attributes: get from raw node context.
- * 4) Fix CSS2Properties support for setting values: all properties have the same objmaps, wtf?
+ * 2) Fix CSS2Properties support for parsing style attributes: get from raw node context.
+ * 3) Fix CSS2Properties support for setting values: all properties have the same objmaps, wtf?
+ * 4) Fix focus() which sets document.activeElement correctly for jQuery:focus
  */
 (function() {
 
@@ -68,13 +68,6 @@
 		return oldEnvjsUriFn(path, "file:///" + ("" + Envjs.getcwd()).replace(/\\/g, '/') + "/");
 	};
 	
-	window.setTimeout = function(closure, timeout) {
-		spawn(function() {
-			java.lang.Thread.sleep(timeout);
-			closure();
-		});
-	};
-
 	(function(Element) {
 	
 		var style = "style";
@@ -97,6 +90,25 @@
 		});
 	
 	})(HTMLElement.prototype);
+
+    (function(Input, Textarea, document) {
+        var activeElement;
+        function fixFocusForPrototype(element) {
+            var originalFocus = element.prototype.focus;
+            element.prototype.focus = function(element) {
+                activeElement = this;
+                originalFocus.apply(this, arguments);
+            }
+        }
+
+        fixFocusForPrototype(Input);
+        fixFocusForPrototype(Textarea);
+        
+        document.__defineGetter__("activeElement", function() {
+            return activeElement;
+        });
+        
+    })(HTMLInputElement, HTMLTextAreaElement, document);
 	
 	(function(css) {
 
@@ -110,4 +122,59 @@
 			return setCssProperty.call(this, name, value);
 		}
 	})(CSS2Properties);
+})();
+
+/**
+ * Envjs timeout fixes which use native Java code to re-implement setTimeout and setInterval
+ * also sets clearTimeout & clearInterval on same level. 
+ */
+(function() {
+	var threadTimeoutPool = {};
+
+	window.setTimeout = function(closure, timeout) {
+	    var thread = spawn(function() {
+	        try {
+	            java.lang.Thread.sleep(timeout);    
+	            closure();
+	        } catch(e) {
+	            // ignore InterruptedExceptions, is probably due to clearTimeout
+	            if (!(e.javaException instanceof java.lang.InterruptedException)) {
+	                throw(e);
+	            }
+	        }
+	    });
+	    
+	    threadTimeoutPool[thread.getId()] = thread;
+	    return thread.getId();
+	};
+
+	window.setInterval = function(closure, timeout) {
+	    var thread = spawn(function() {
+	        try {            
+	            while(true) {
+	                java.lang.Thread.sleep(timeout);
+	                closure();
+	            }
+	        } catch(e) {
+	            // ignore InterruptedExceptions, is probably due to clearTimeout
+	            if (!(e.javaException instanceof java.lang.InterruptedException)) {
+	                throw(e);
+	            }
+	        }
+	    });
+	    
+	    threadTimeoutPool[thread.getId()] = thread;
+	    return thread.getId();
+	};
+
+	window.clearTimeout = function(threadId) {
+	    if (threadId) {
+	        if(threadTimeoutPool[threadId]) {
+	            threadTimeoutPool[threadId].interrupt();
+	            delete threadTimeoutPool[threadId];
+	        }
+	    }
+	};
+
+	window.clearInterval = window.clearTimeout;	
 })();
