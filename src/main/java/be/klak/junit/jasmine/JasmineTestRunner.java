@@ -22,8 +22,8 @@ public class JasmineTestRunner extends Runner {
 
 	private JasmineDescriptions jasmineSuite;
 
-	private final RhinoContext rhinoContext;
-	private final JasmineSuite suiteAnnotation;
+	protected final RhinoContext rhinoContext;
+	protected final JasmineSuite suiteAnnotation;
 	private final Class<?> testClass;
 
 	@JasmineSuite
@@ -48,6 +48,9 @@ public class JasmineTestRunner extends Runner {
 
 	private RhinoContext setUpRhinoScope() {
 		RhinoContext context = new RhinoContext();
+
+        pre(context);
+
 		context.loadEnv(suiteAnnotation.jsRootDir());
 		setUpJasmine(context);
 
@@ -55,6 +58,9 @@ public class JasmineTestRunner extends Runner {
 		context.load(suiteAnnotation.jsRootDir() + "/specs/", getJasmineSpecs(suiteAnnotation));
 		return context;
 	}
+
+    protected void pre(RhinoContext context) {
+    }
 
 	private void setUpJasmine(RhinoContext context) {
 		context.load(getJsLibDir() + "jasmine.js");
@@ -138,8 +144,13 @@ public class JasmineTestRunner extends Runner {
 			}
 		}
 
-		this.rhinoContext.exit();
+        after();
 	}
+
+    protected void after() {
+		this.rhinoContext.exit();
+    }
+
 
 	private Object createTestClassInstance() {
 		try {
