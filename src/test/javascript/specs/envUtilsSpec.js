@@ -37,6 +37,34 @@ describe("envjs fixes", function() {
 				});
 			});
 		});
+		
+		describe("Checkbox click events", function() {
+			it("should set the state of the checkbox to checked if not checked when clicked", function() {
+				$("#checkbox").click();
+				expect($("#checkbox")).toBeChecked();
+			});
+			
+			it("should set the state of the checkbox to unchecked if checked when clicked", function() {
+				$("#checkbox").attr('checked', true);
+				$("#checkbox").click();
+				expect($("#checkbox")).not.toBeChecked();
+			});
+			
+			it("should still fire the click event after clicking on a checkbox", function() {
+				var clicked = false;
+				$("#checkbox").click(function() {
+					clicked = true;
+				});
+				
+				waitsFor(function() {
+					return clicked;
+				});
+				$("#checkbox").click();
+				runs(function() {
+					expect(clicked).toBeTruthy();
+				});
+			});
+		});
 	});
 	
 	describe("CSS2 style property support for parsing style attributes", function() {

@@ -57,7 +57,8 @@
  * 2) Fix CSS2Properties support for parsing style attributes: get from raw node context.
  * 3) Fix CSS2Properties support for setting values: all properties have the same objmaps, wtf?
  * 4) Fix focus() which sets document.activeElement correctly for jQuery:focus
- */
+ * 5) Fix Input click() behavior for checkboxes. Warning: jQ's click() <-> DOM's click (checked value too late set)!
+ **/
 (function() {
 
 	var oldEnvjsUriFn = Envjs.uri;
@@ -91,6 +92,16 @@
 	
 	})(HTMLElement.prototype);
 
+	 (function(input) {
+         var oldClick = input.prototype.click;
+         input.prototype.click = function() {
+             if(this.type === "checkbox") {
+                 this.checked = !this.checked;
+             }
+             oldClick.apply(this, arguments);
+         }
+     })(HTMLInputElement);
+	
     (function(Input, Textarea, document) {
         var activeElement;
         function fixFocusForPrototype(element) {
