@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mozilla.javascript.EvaluatorException;
 
-import be.klak.junit.jasmine.JasmineTestRunner;
 import be.klak.junit.jasmine.classes.JasmineTestRunnerExceptionInJSCode;
 import be.klak.junit.jasmine.classes.JasmineTestRunnerExceptionInSpec;
 import be.klak.junit.jasmine.classes.JasmineTestRunnerFailingSpec;
@@ -58,7 +57,7 @@ public class JasmineFailingSpecsTest {
 
         assertThat(failure.getDescription()).isEqualTo(startedDescription);
         assertThat(failure.getDescription().getDisplayName()).isEqualTo("will always crash");
-        assertThat(failure.getMessage()).isEqualTo("ReferenceError: \"OEIWANU\" is not defined. in src/test/javascript/specs/crashingSpec.js (line 3)");
+        assertThat(failure.getMessage().substring(0,25)).isEqualTo("ReferenceError: \"OEIWANU\"");// is not defined. in src/test/javascript/specs/crashingSpec.js (line 3)");
     }
 
     @Test(expected = EvaluatorException.class)
