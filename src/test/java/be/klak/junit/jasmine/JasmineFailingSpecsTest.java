@@ -57,7 +57,7 @@ public class JasmineFailingSpecsTest {
 
         assertThat(failure.getDescription()).isEqualTo(startedDescription);
         assertThat(failure.getDescription().getDisplayName()).isEqualTo("will always crash");
-        assertThat(failure.getMessage().substring(0,25)).isEqualTo("ReferenceError: \"OEIWANU\"");// is not defined. in src/test/javascript/specs/crashingSpec.js (line 3)");
+        assertThat(failure.getMessage()).contains("ReferenceError: \"OEIWANU\"");
     }
 
     @Test(expected = EvaluatorException.class)
