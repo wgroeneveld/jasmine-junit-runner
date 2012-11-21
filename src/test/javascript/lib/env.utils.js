@@ -140,7 +140,7 @@
  * also sets clearTimeout & clearInterval on same level. 
  */
 (function() {
-	var threadTimeoutPool = {};
+	var threadTimeoutPool = new java.util.HashMap();
 
 	window.setTimeout = function(closure, timeout) {
 	    var thread = spawn(function() {
@@ -155,7 +155,7 @@
 	        }
 	    });
 	    
-	    threadTimeoutPool[thread.getId()] = thread;
+	    threadTimeoutPool.put(thread.getId(), thread);
 	    return thread.getId();
 	};
 
@@ -174,15 +174,14 @@
 	        }
 	    });
 	    
-	    threadTimeoutPool[thread.getId()] = thread;
+	    threadTimeoutPool.put(thread.getId(), thread);
 	    return thread.getId();
 	};
 
 	window.clearTimeout = function(threadId) {
 	    if (threadId) {
-	        if(threadTimeoutPool[threadId]) {
-	            threadTimeoutPool[threadId].interrupt();
-	            delete threadTimeoutPool[threadId];
+	        if(threadTimeoutPool.containsKey(threadId)) {
+	            threadTimeoutPool.remove(threadId).interrupt();
 	        }
 	    }
 	};
