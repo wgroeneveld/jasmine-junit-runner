@@ -1,5 +1,7 @@
 package be.klak.rhino;
 
+import java.net.URL;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
@@ -85,6 +87,24 @@ public class RhinoContext {
 		evalJS("load('" + fileName + "')");
 		// Main.processFile(this.jsContext, this.jsScope, fileName);
 	}
+
+	// {{{ loadFromClasspath
+	/**
+	 * Loads a resource from the classpath.
+	 *
+	 * @param resource the resource to resolve from the classpath
+	 */
+	public void loadFromClasspath(final String resource) {
+	    URL rsrcUrl =
+	    	Thread.currentThread().getContextClassLoader().getResource(resource);
+
+	    if (rsrcUrl == null) {
+	    	throw new IllegalArgumentException("resource " + resource + " not found on classpath");
+	    }
+
+	    evalJS(String.format("load('%s')", rsrcUrl.toExternalForm()));
+	}
+	// }}}
 
 	public Object executeFunction(ScriptableObject object, String fnName, Object[] arguments) {
 		Object fnPointer = object.get(fnName, object);
