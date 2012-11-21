@@ -4,6 +4,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.apache.commons.lang.StringUtils;
+
+import java.net.URL;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.Description;
@@ -18,7 +21,9 @@ import be.klak.rhino.RhinoContext;
 public class JasmineTestRunner extends Runner {
 
 	private static final int SLEEP_TIME_MILISECONDS = 50;
-	private static final String JASMINE_LIB_DIR = "/lib/jasmine-1.0.2/";
+
+	// relative to classpath
+	private static final String JASMINE_LIB_DIR = "js/lib/jasmine-1.0.2";
 
 	private JasmineDescriptions jasmineSuite;
 
@@ -63,8 +68,8 @@ public class JasmineTestRunner extends Runner {
     }
 
 	private void setUpJasmine(RhinoContext context) {
-		context.load(getJsLibDir() + "jasmine.js");
-		context.load(getJsLibDir() + "jasmine.delegator_reporter.js");
+		context.loadFromClasspath(JASMINE_LIB_DIR + "/jasmine.js");
+		context.loadFromClasspath(JASMINE_LIB_DIR + "/jasmine.delegator_reporter.js");
 
 		context.evalJS("jasmine.getEnv().addReporter(new jasmine.DelegatorJUnitReporter());");
 	}
@@ -102,11 +107,26 @@ public class JasmineTestRunner extends Runner {
 	}
 
 	private void resetEnvjsWindowSpace() {
-		this.rhinoContext.evalJS("window.location = '" + suiteAnnotation.jsRootDir() + "/lib/blank.html';");
-	}
+		URL blankUrl = Thread
+			.currentThread()
+			.getContextClassLoader()
+			.getResource("js/lib/blank.html");
 
-	private String getJsLibDir() {
-		return suiteAnnotation.jsRootDir() + JASMINE_LIB_DIR;
+		if (blankUrl == null) {
+			throw new IllegalStateException("Unable to load js/lib/blank.html from classpath");
+		}
+
+		String blankUrlStr = blankUrl.toExternalForm();
+		
+		// "file:/path/to/file" is not legal, but "file:///path/to/file" is
+		if (blankUrlStr.startsWith("file:/") && (! blankUrlStr.startsWith("file:///"))) {
+			blankUrlStr = "file://" + blankUrlStr.substring(5);
+		}
+
+		this.rhinoContext.evalJS(String.format(
+			"window.location = '%s';",
+			blankUrlStr
+		));
 	}
 
 	private JasmineDescriptions getJasmineDescriptions() {

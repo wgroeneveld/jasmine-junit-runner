@@ -128,8 +128,8 @@ public class RhinoContext {
 	}
 
 	public void loadEnv(String jsDir) {
-		load(jsDir + "/lib/env.rhino.1.2.js");
-		load(jsDir + "/lib/env.utils.js");
+		loadFromClasspath("js/lib/env.rhino.1.2.js");
+		loadFromClasspath("js/lib/env.utils.js");
 		load(jsDir + "/envJsOptions.js");
 	}
 

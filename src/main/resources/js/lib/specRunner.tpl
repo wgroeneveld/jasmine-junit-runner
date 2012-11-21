@@ -8,14 +8,10 @@
 		<script type="text/javascript" src="./../lib/jasmine-1.0.2/jasmine-html.js"></script>
 		
 		<!-- dit zijn de productie source js files: -->
-				<script type='text/javascript' src='./../../../main/webapp/js/source1.js'></script>
-		<script type='text/javascript' src='./../../../main/webapp/js/source2.js'></script>
-
+		<!--SourceFileIncludes-->
 		
 		<!-- dit zijn de jasmine spec js files: -->
-				<script type='text/javascript' src='./../specs/spec1.js'></script>
-		<script type='text/javascript' src='./../specs/spec2.js'></script>
-
+		<!--SpecFileIncludes-->
 	</head>
 	<body>
 
