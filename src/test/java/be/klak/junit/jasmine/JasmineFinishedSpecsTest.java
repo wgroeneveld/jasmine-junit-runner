@@ -14,6 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import be.klak.junit.jasmine.JasmineTestRunner;
 import be.klak.junit.jasmine.classes.JasmineTestRunnerSuccessSpec;
+import be.klak.junit.jasmine.classes.JasmineTestRunnerDoesNotLoadEnvJS;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JasmineFinishedSpecsTest {
@@ -36,6 +37,23 @@ public class JasmineFinishedSpecsTest {
 
         assertThat(startedDescription).isSameAs(finishedDescription);
         assertThat(startedDescription.getDisplayName()).isEqualTo("will always run");
+    }
+
+    @Test
+    public void doesNotLoadEnvJsWhenSoConfigured() {
+        new JasmineTestRunner(JasmineTestRunnerDoesNotLoadEnvJS.class).run(notifierMock);
+
+        ArgumentCaptor<Description> descriptionStartedCaptor = ArgumentCaptor.forClass(Description.class);
+        ArgumentCaptor<Description> descriptionFinishedCaptor = ArgumentCaptor.forClass(Description.class);
+        verify(notifierMock).fireTestStarted(descriptionStartedCaptor.capture());
+        verify(notifierMock).fireTestFinished(descriptionFinishedCaptor.capture());
+        verifyNoMoreInteractions(notifierMock);
+
+        Description startedDescription = descriptionStartedCaptor.getValue();
+        Description finishedDescription = descriptionFinishedCaptor.getValue();
+
+        assertThat(startedDescription).isSameAs(finishedDescription);
+        assertThat(startedDescription.getDisplayName()).isEqualTo("is not loaded");
     }
 
 }

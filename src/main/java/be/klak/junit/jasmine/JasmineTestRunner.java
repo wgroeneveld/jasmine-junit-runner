@@ -27,8 +27,7 @@ public class JasmineTestRunner extends Runner {
 	private final Class<?> testClass;
 
 	@JasmineSuite
-	private class DefaultSuite {
-	}
+	private class DefaultSuite { }
 
 	public JasmineTestRunner(Class<?> testClass) {
 		this.testClass = testClass;
@@ -51,16 +50,21 @@ public class JasmineTestRunner extends Runner {
 
         pre(context);
 
-		context.loadEnv(suiteAnnotation.jsRootDir());
+        if (suiteAnnotation.envJs()) {
+			context.loadEnv(suiteAnnotation.jsRootDir());
+		} else {
+			context.load(suiteAnnotation.jsRootDir(), "/lib/no-env.js");
+		}
+
 		setUpJasmine(context);
 
 		context.load(suiteAnnotation.sourcesRootDir() + "/", suiteAnnotation.sources());
 		context.load(suiteAnnotation.jsRootDir() + "/specs/", getJasmineSpecs(suiteAnnotation));
+
 		return context;
 	}
 
-    protected void pre(RhinoContext context) {
-    }
+    protected void pre(RhinoContext context) { }
 
 	private void setUpJasmine(RhinoContext context) {
 		context.load(getJsLibDir() + "jasmine.js");
@@ -138,7 +142,10 @@ public class JasmineTestRunner extends Runner {
 				}
 
 				reportSpecResultToNotifier(notifier, spec);
-				resetEnvjsWindowSpace();
+
+				if (suiteAnnotation.envJs()) {
+					resetEnvjsWindowSpace();
+				}
 			} finally {
 				fireMethodsWithSpecifiedAnnotationIfAny(testClassInstance, After.class);
 			}
@@ -150,7 +157,6 @@ public class JasmineTestRunner extends Runner {
     protected void after() {
 		this.rhinoContext.exit();
     }
-
 
 	private Object createTestClassInstance() {
 		try {

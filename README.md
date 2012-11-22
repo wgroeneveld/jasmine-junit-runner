@@ -103,6 +103,7 @@ You can still use Firebug to debug when generating a specRunner HTML file (see b
 * specs: one or more spec file to run. Default behavior: use java Class name (replaces Test with Spec, see example)
 * sources: one or more JS production file which your spec needs (included before specs, d'uh)
 * generateSpecRunner: (the HTML output, useful for firefox/firebug debugging etc)
+* envJs: load EnvJS support (defaults to true)
 
 ## Requirements
 
