@@ -17,4 +17,9 @@ public @interface JasmineSuite {
     boolean generateSpecRunner() default false;
 
     boolean debug() default false;
+
+    /**
+     * If set to false, does not load EnvJS support.
+     */
+    boolean envJs() default true;
 }
