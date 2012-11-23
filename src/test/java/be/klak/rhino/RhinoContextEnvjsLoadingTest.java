@@ -12,7 +12,7 @@ import be.klak.rhino.RhinoContext;
 public class RhinoContextEnvjsLoadingTest {
 
     @Test
-    public void loadEnvShouldSetWindowSpaceAndBeES5Complaint() {
+    public void loadEnvJSShouldSetWindowSpaceAndBeES5Complaint() {
         RhinoContext context = new RhinoContext();
 
         context.loadEnv("src/test/javascript");
