@@ -80,4 +80,14 @@ public class RhinoContextTest {
         assertThat(context.evalJS("loaded")).isEqualTo(true);
         assertThat(context.evalJS("loadedTwo")).isEqualTo(true);
     }
+
+    // {{{ loadsJSFilesFromClasspath
+    @Test
+    public void loadsJSFilesFromClasspath() {
+        RhinoContext context = new RhinoContext();
+        context.loadFromClasspath("js/lib/loadsJSFilesFromClasspathTarget.js");
+
+        assertThat(context.evalJS("target.theAnswer")).isEqualTo("forty two");
+    }
+    // }}}
 }

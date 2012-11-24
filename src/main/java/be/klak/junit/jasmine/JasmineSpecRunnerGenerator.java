@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 class JasmineSpecRunnerGenerator {
 
@@ -66,12 +67,17 @@ class JasmineSpecRunnerGenerator {
 	}
 
 	private String loadTemplate() {
-		String template = null;
 		try {
-			template = FileUtils.readFileToString(new File(suite.jsRootDir() + "/lib/specRunner.tpl"));
+			return IOUtils.toString(
+				Thread
+					.currentThread()
+					.getContextClassLoader()
+					.getResourceAsStream("js/lib/specRunner.tpl")
+			);
+		} catch (NullPointerException e) {
+			throw new IllegalStateException("spec runner template file not found!");
 		} catch (IOException e) {
-			throw new RuntimeException("spec runner template file not found!", e);
+			throw new IllegalStateException("spec runner template file could not be read!", e);
 		}
-		return template;
 	}
 }
