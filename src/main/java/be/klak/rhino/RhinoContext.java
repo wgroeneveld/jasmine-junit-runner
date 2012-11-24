@@ -1,5 +1,7 @@
 package be.klak.rhino;
 
+import java.net.URL;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
@@ -86,6 +88,24 @@ public class RhinoContext {
 		// Main.processFile(this.jsContext, this.jsScope, fileName);
 	}
 
+	// {{{ loadFromClasspath
+	/**
+	 * Loads a resource from the classpath.
+	 *
+	 * @param resource the resource to resolve from the classpath
+	 */
+	public void loadFromClasspath(final String resource) {
+	    URL rsrcUrl =
+	    	Thread.currentThread().getContextClassLoader().getResource(resource);
+
+	    if (rsrcUrl == null) {
+	    	throw new IllegalArgumentException("resource " + resource + " not found on classpath");
+	    }
+
+	    evalJS(String.format("load('%s')", rsrcUrl.toExternalForm()));
+	}
+	// }}}
+
 	public Object executeFunction(ScriptableObject object, String fnName, Object[] arguments) {
 		Object fnPointer = object.get(fnName, object);
 		if (fnPointer == null || !(fnPointer instanceof Function)) {
@@ -108,11 +128,8 @@ public class RhinoContext {
 	}
 
 	public void loadEnv(String jsDir) {
-		// TODO ensure rhino 1.7R3 instead of R2 -> geen shim nodig + paths
-		// gedoe in orde zetten hier
-		load(jsDir + "/lib/es5-shim-0.0.4.min.js");
-		load(jsDir + "/lib/env.rhino.1.2.js");
-		load(jsDir + "/lib/env.utils.js");
+		loadFromClasspath("js/lib/env.rhino.1.2.js");
+		loadFromClasspath("js/lib/env.utils.js");
 		load(jsDir + "/envJsOptions.js");
 	}
 
@@ -125,7 +142,7 @@ public class RhinoContext {
 	private Context createJavascriptContext() {
 		Context jsContext = ContextFactory.getGlobal().enterContext();
 		jsContext.setOptimizationLevel(-1);
-		jsContext.setLanguageVersion(Context.VERSION_1_5); // TODO 1.8 plx
+		jsContext.setLanguageVersion(Context.VERSION_1_8);
 		jsContext.setErrorReporter(new ChainedErrorReporter(jsContext.getErrorReporter()));
 		return jsContext;
 	}
