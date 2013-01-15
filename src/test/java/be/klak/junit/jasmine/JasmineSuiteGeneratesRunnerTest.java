@@ -7,6 +7,7 @@ import java.io.IOException;
 
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import be.klak.junit.jasmine.JasmineTestRunner;
 import be.klak.junit.jasmine.classes.JasmineSuiteGeneratorClassWithRunner;
+import be.klak.junit.jasmine.classes.JasmineSuiteGeneratorClassWithRunnerInSubDir;
 import be.klak.junit.jasmine.classes.JasmineSuiteGeneratorClassWithoutRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,8 +59,41 @@ public class JasmineSuiteGeneratesRunnerTest {
                 "./../specs/spec2.js");
     }
 
+    @Test
+    public void generateJasmineTestRunnerAfterRunningTestsWithSubDir() throws IOException {
+      Class<JasmineSuiteGeneratorClassWithRunnerInSubDir> testClass =
+        JasmineSuiteGeneratorClassWithRunnerInSubDir.class;
+      new JasmineTestRunner(testClass).run(notifierMock);
+
+      File runnerResult = getTestRunnerResultFile(testClass, "subDir1/subDir2");
+      assertThat(runnerResult.isFile()).isTrue();
+
+      String runnerContent = FileUtils.readFileToString(runnerResult);
+
+      assertThat(runnerContent).contains("jasmine.getEnv().addReporter(new jasmine.TrivialReporter());");
+      assertJSFileIncluded(runnerContent,
+              "./../../../main/webapp/js/source1.js",
+              "./../../../main/webapp/js/source2.js",
+              "./../specs/spec1.js",
+              "./../specs/spec2.js");
+
+    }
+
     private File getTestRunnerResultFile(Class<?> testClass) {
-        return new File(RUNNERS_OUTPUT_DIR + testClass.getSimpleName() + "Runner.html");
+        return getTestRunnerResultFile(testClass, StringUtils.EMPTY);
+    }
+
+//    private File getTestRunnerResultFile(Class<?> testClass) {
+//      return new File(RUNNERS_OUTPUT_DIR + testClass.getSimpleName() + "Runner.html");
+//  }
+
+    private File getTestRunnerResultFile(Class<?> testClass, String subDir) {
+      StringBuffer filePath = new StringBuffer(RUNNERS_OUTPUT_DIR);
+      if (StringUtils.isNotBlank(subDir)) {
+        filePath.append(subDir).append('/');
+      }
+      filePath.append(testClass.getSimpleName()).append("Runner.html");
+      return new File(filePath.toString());
     }
 
     private void assertJSFileIncluded(String rawContent, String... files) {

@@ -3,6 +3,8 @@ package be.klak.junit.jasmine;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import org.apache.commons.lang.StringUtils;
+
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JasmineSuite {
 
@@ -22,4 +24,6 @@ public @interface JasmineSuite {
      * If set to false, does not load EnvJS support.
      */
     boolean envJs() default true;
+
+    String specRunnerSubDir() default StringUtils.EMPTY;
 }
