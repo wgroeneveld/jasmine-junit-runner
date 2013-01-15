@@ -121,7 +121,7 @@ public class JasmineTestRunner extends Runner {
 		}
 
 		String blankUrlStr = blankUrl.toExternalForm();
-		
+
 		// "file:/path/to/file" is not legal, but "file:///path/to/file" is
 		if (blankUrlStr.startsWith("file:/") && (! blankUrlStr.startsWith("file:///"))) {
 			blankUrlStr = "file://" + blankUrlStr.substring(5);
@@ -212,7 +212,11 @@ public class JasmineTestRunner extends Runner {
 	private void generateSpecRunnerIfNeeded() {
 		if (suiteAnnotation.generateSpecRunner()) {
 			String[] jasmineSpecs = getJasmineSpecs(suiteAnnotation);
-			new JasmineSpecRunnerGenerator(jasmineSpecs, suiteAnnotation, suiteAnnotation.jsRootDir() + "/runners",
+			StringBuffer outputPath = new StringBuffer(suiteAnnotation.jsRootDir()).append("/runners");
+			if (StringUtils.isNotBlank(suiteAnnotation.specRunnerSubDir())) {
+			  outputPath.append('/').append(suiteAnnotation.specRunnerSubDir());
+			}
+			new JasmineSpecRunnerGenerator(jasmineSpecs, suiteAnnotation, outputPath.toString(),
 					testClass.getSimpleName()
 							+ "Runner.html")
 					.generate();
