@@ -7,11 +7,7 @@
 		<script type="text/javascript" src="./../lib/jasmine-1.0.2/jasmine.js"></script>
 		<script type="text/javascript" src="./../lib/jasmine-1.0.2/jasmine-html.js"></script>
 		
-		<!-- dit zijn de productie source js files: -->
 		<!--SourceFileIncludes-->
-		
-		<!-- dit zijn de jasmine spec js files: -->
-		<!--SpecFileIncludes-->
 	</head>
 	<body>
 
