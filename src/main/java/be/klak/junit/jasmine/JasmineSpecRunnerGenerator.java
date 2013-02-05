@@ -40,7 +40,6 @@ class JasmineSpecRunnerGenerator {
             }
         }
 
-		// TODO hardcoded relative path stuff wat configureerbaar maken
         for(String source : suite.sources()){
             javascriptFiles.add(new File(suite.sourcesRootDir(), source));
         }
@@ -48,7 +47,21 @@ class JasmineSpecRunnerGenerator {
             javascriptFiles.add(new File(new File(suite.jsRootDir(), "specs"), spec));
         }
 
-        HtmlPageRunner htmlPageRunner = new HtmlPageRunner(javascriptFiles);
+        List<File> cssFiles = new ArrayList<File>();
+        List<ClasspathResource> cssResources = Arrays.asList(
+                new ClasspathResource("js/lib/jasmine-1.0.2/jasmine.css")
+        );
+        for(ClasspathResource resource : cssResources){
+            File outputFile = new File(outputPath, resource.getBaseName());
+            try {
+                FileUtils.writeStringToFile(outputFile, IOUtils.toString(resource.getURL().openStream()));
+                cssFiles.add(outputFile);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        HtmlPageRunner htmlPageRunner = new HtmlPageRunner(javascriptFiles, cssFiles);
         try {
 			FileUtils.writeStringToFile(new File(outputPath + "/" + outputFileName), htmlPageRunner.render());
 		} catch (IOException e) {

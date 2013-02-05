@@ -51,6 +51,8 @@ public class JasmineSuiteGeneratesRunnerTest {
         assertJSFileIncluded(runnerContent,
                 "file://" + new File(runnerResult.getParent(), "jasmine.js").getAbsolutePath(),
                 "file://" + new File(runnerResult.getParent(), "jasmine-html.js").getAbsolutePath());
+        assertCssFileIncluded(runnerContent,
+                "file://" + new File(runnerResult.getParent(), "jasmine.css").getAbsolutePath());
     }
 
     @Test
@@ -107,6 +109,12 @@ public class JasmineSuiteGeneratesRunnerTest {
     private void assertJSFileIncluded(String rawContent, String... files) {
         for (String file : files) {
             assertThat(rawContent).contains("<script type='text/javascript' src='" + file + "'></script>");
+        }
+    }
+
+    private void assertCssFileIncluded(String rawContent, String... files) {
+        for (String file : files) {
+            assertThat(rawContent).contains("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + file + "\">");
         }
     }
 }

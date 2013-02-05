@@ -3,8 +3,7 @@
 <html>
 	<head>
 		<title>Jasmine Test Runner</title>
-		<link rel="stylesheet" type="text/css" href="./../lib/jasmine-1.0.2/jasmine.css">
-
+		<!--CssFileIncludes-->
 		<!--SourceFileIncludes-->
 	</head>
 	<body>
