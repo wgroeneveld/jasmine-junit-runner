@@ -1,10 +1,12 @@
 package be.klak.junit.jasmine;
 
+import be.klak.junit.resources.ClasspathResource;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 class JasmineSpecRunnerGenerator {
@@ -22,8 +24,23 @@ class JasmineSpecRunnerGenerator {
 	}
 
 	public void generate() {
-		// TODO hardcoded relative path stuff wat configureerbaar maken
         List<File> javascriptFiles = new ArrayList<File>();
+
+        List<ClasspathResource> resources = Arrays.asList(
+            new ClasspathResource("js/lib/jasmine-1.0.2/jasmine.js"),
+            new ClasspathResource("js/lib/jasmine-1.0.2/jasmine-html.js")
+        );
+        for(ClasspathResource resource : resources){
+            File outputFile = new File(outputPath, resource.getBaseName());
+            try {
+                FileUtils.writeStringToFile(outputFile, IOUtils.toString(resource.getURL().openStream()));
+                javascriptFiles.add(outputFile);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+		// TODO hardcoded relative path stuff wat configureerbaar maken
         for(String source : suite.sources()){
             javascriptFiles.add(new File(suite.sourcesRootDir(), source));
         }
@@ -38,4 +55,5 @@ class JasmineSpecRunnerGenerator {
 			throw new RuntimeException("unable to write spec runner contents to destination", e);
 		}
 	}
+
 }

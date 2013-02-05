@@ -39,6 +39,21 @@ public class JasmineSuiteGeneratesRunnerTest {
     }
 
     @Test
+    public void outputsClasspathLibrariesWithRunner() throws IOException {
+        Class<JasmineSuiteGeneratorClassWithRunner> testClass = JasmineSuiteGeneratorClassWithRunner.class;
+        new JasmineTestRunner(testClass).run(notifierMock);
+
+        File runnerResult = getTestRunnerResultFile(testClass);
+        assertThat(runnerResult.isFile()).isTrue();
+
+        String runnerContent = FileUtils.readFileToString(runnerResult);
+
+        assertJSFileIncluded(runnerContent,
+                "file://" + new File(runnerResult.getParent(), "jasmine.js").getAbsolutePath(),
+                "file://" + new File(runnerResult.getParent(), "jasmine-html.js").getAbsolutePath());
+    }
+
+    @Test
     public void generateJasmineTestRunnerAfterRunningTests() throws IOException {
         Class<JasmineSuiteGeneratorClassWithRunner> testClass = JasmineSuiteGeneratorClassWithRunner.class;
         new JasmineTestRunner(testClass).run(notifierMock);
