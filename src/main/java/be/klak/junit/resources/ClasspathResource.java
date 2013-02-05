@@ -2,7 +2,7 @@ package be.klak.junit.resources;
 
 import java.net.URL;
 
-public class ClasspathResource {
+public class ClasspathResource implements Resource {
     private final String path;
     private final ClassLoader classLoader;
 

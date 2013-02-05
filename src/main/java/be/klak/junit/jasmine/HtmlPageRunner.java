@@ -1,8 +1,8 @@
 package be.klak.junit.jasmine;
 
+import be.klak.junit.resources.FileResource;
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -22,10 +22,10 @@ class HtmlPageRunner {
         }
     }
 
-    private final List<File> javascriptFiles;
-    private final List<File> cssFiles;
+    private final List<FileResource> javascriptFiles;
+    private final List<FileResource> cssFiles;
 
-    public HtmlPageRunner(List<File> javascriptFiles, List<File> cssFiles){
+    public HtmlPageRunner(List<FileResource> javascriptFiles, List<FileResource> cssFiles){
         this.javascriptFiles = javascriptFiles;
         this.cssFiles = cssFiles;
     }
@@ -38,18 +38,18 @@ class HtmlPageRunner {
 
     private String getCssFileIncludes() {
         StringBuilder sourceFileIncludes = new StringBuilder();
-        for (File sourceFile : cssFiles) {
+        for (FileResource sourceFile : cssFiles) {
             sourceFileIncludes.append("\t\t<link rel=\"stylesheet\" type=\"text/css\" href=\"" +
-                                           "file://" + sourceFile.getAbsolutePath() + "\">\r\n");
+                                           "file://" + sourceFile.getURL().getFile() + "\">\r\n");
         }
         return sourceFileIncludes.toString();
     }
 
     private String getJavascriptFileIncludes() {
         StringBuilder sourceFileIncludes = new StringBuilder();
-        for (File sourceFile : javascriptFiles) {
+        for (FileResource sourceFile : javascriptFiles) {
             sourceFileIncludes.append("\t\t<script type='text/javascript' src='"
-                                        + "file://" + sourceFile.getAbsolutePath() + "'></script>\r\n");
+                                        + "file://" + sourceFile.getURL().getFile() + "'></script>\r\n");
         }
         return sourceFileIncludes.toString();
     }
