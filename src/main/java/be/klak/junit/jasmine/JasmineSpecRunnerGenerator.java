@@ -63,7 +63,7 @@ class JasmineSpecRunnerGenerator {
 
         HtmlPageRunner htmlPageRunner = new HtmlPageRunner(javascriptFiles, cssFiles);
         try {
-			FileUtils.writeStringToFile(new File(outputPath + "/" + outputFileName), htmlPageRunner.render());
+			FileUtils.writeStringToFile(new File(outputPath, outputFileName), htmlPageRunner.render());
 		} catch (IOException e) {
 			throw new RuntimeException("unable to write spec runner contents to destination", e);
 		}
