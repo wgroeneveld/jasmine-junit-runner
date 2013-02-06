@@ -3,15 +3,8 @@
 <html>
 	<head>
 		<title>Jasmine Test Runner</title>
-		<link rel="stylesheet" type="text/css" href="./../lib/jasmine-1.0.2/jasmine.css">
-		<script type="text/javascript" src="./../lib/jasmine-1.0.2/jasmine.js"></script>
-		<script type="text/javascript" src="./../lib/jasmine-1.0.2/jasmine-html.js"></script>
-		
-		<!-- dit zijn de productie source js files: -->
+		<!--CssFileIncludes-->
 		<!--SourceFileIncludes-->
-		
-		<!-- dit zijn de jasmine spec js files: -->
-		<!--SpecFileIncludes-->
 	</head>
 	<body>
 

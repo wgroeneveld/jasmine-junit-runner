@@ -1,83 +1,54 @@
 package be.klak.junit.jasmine;
 
+import be.klak.junit.resources.ClasspathResource;
+import be.klak.junit.resources.FileResource;
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 class JasmineSpecRunnerGenerator {
 
-	private enum TemplatePlaceholders {
-		RELATIVE_PATH("<!--RelativePath-->"),
-		SOURCE_FILES_TO_INCLUDE("<!--SourceFileIncludes-->"),
-		SPEC_FILES_TO_INCLUDE("<!--SpecFileIncludes-->");
-
-		private final String placeholder;
-
-		private TemplatePlaceholders(String placeholder) {
-			this.placeholder = placeholder;
-		}
-
-		public String getPlaceholder() {
-			return placeholder;
-		}
-
-	}
-
-	private final JasmineSuite suite;
+    private final JasmineSuite suite;
 	private final String[] jasmineSpecs;
 	private final String outputPath;
 	private final String outputFileName;
+    private File outputFile;
 
-	public JasmineSpecRunnerGenerator(String[] jasmineSpecs, JasmineSuite suite, String outputPath, String outputFileName) {
+    public JasmineSpecRunnerGenerator(String[] jasmineSpecs, JasmineSuite suite, String outputPath, String outputFileName) {
 		this.jasmineSpecs = jasmineSpecs;
 		this.suite = suite;
 		this.outputPath = outputPath;
 		this.outputFileName = outputFileName;
+        this.outputFile = new File(outputPath);
 	}
 
 	public void generate() {
-		// TODO hardcoded relative path stuff wat configureerbaar maken
-		String template = loadTemplate();
-		template = replaceRelativePathsForLibs(template);
-		template = template.replaceAll(TemplatePlaceholders.SOURCE_FILES_TO_INCLUDE.getPlaceholder(),
-				getJavascriptFileIncludes("./../../../main/webapp/js", suite.sources()));
-		template = template.replaceAll(TemplatePlaceholders.SPEC_FILES_TO_INCLUDE.getPlaceholder(),
-				getJavascriptFileIncludes("./../specs", jasmineSpecs));
+        List<FileResource> javascriptFiles = new ArrayList<FileResource>();
 
-		try {
-			FileUtils.writeStringToFile(new File(outputPath + "/" + outputFileName), template);
+        javascriptFiles.addAll(Arrays.asList(
+                FileResource.from(new ClasspathResource("js/lib/jasmine-1.0.2/jasmine.js"), outputFile),
+                FileResource.from(new ClasspathResource("js/lib/jasmine-1.0.2/jasmine-html.js"), outputFile)
+        ));
+        for(String source : suite.sources()){
+            javascriptFiles.add(new FileResource(new File(suite.sourcesRootDir(), source)));
+        }
+        for(String spec : jasmineSpecs){
+            javascriptFiles.add(new FileResource(new File(new File(suite.jsRootDir(), "specs"), spec)));
+        }
+
+        List<FileResource> cssFiles = new ArrayList<FileResource>();
+        cssFiles.add(FileResource.from(new ClasspathResource("js/lib/jasmine-1.0.2/jasmine.css"), outputFile));
+
+        HtmlPageRunner htmlPageRunner = new HtmlPageRunner(javascriptFiles, cssFiles);
+        try {
+			FileUtils.writeStringToFile(new File(outputPath, outputFileName), htmlPageRunner.render());
 		} catch (IOException e) {
 			throw new RuntimeException("unable to write spec runner contents to destination", e);
 		}
 	}
 
-	private String replaceRelativePathsForLibs(String template) {
-		return template.replaceAll(TemplatePlaceholders.RELATIVE_PATH.getPlaceholder(), suite.jsRootDir());
-	}
-
-	private String getJavascriptFileIncludes(String path, String[] jsFiles) {
-		StringBuilder sourceFileIncludes = new StringBuilder();
-		for (String sourceFile : jsFiles) {
-			sourceFileIncludes.append("\t\t<script type='text/javascript' src='" + path + "/" + sourceFile
-					+ "'></script>\r\n");
-		}
-		return sourceFileIncludes.toString();
-	}
-
-	private String loadTemplate() {
-		try {
-			return IOUtils.toString(
-				Thread
-					.currentThread()
-					.getContextClassLoader()
-					.getResourceAsStream("js/lib/specRunner.tpl")
-			);
-		} catch (NullPointerException e) {
-			throw new IllegalStateException("spec runner template file not found!");
-		} catch (IOException e) {
-			throw new IllegalStateException("spec runner template file could not be read!", e);
-		}
-	}
 }

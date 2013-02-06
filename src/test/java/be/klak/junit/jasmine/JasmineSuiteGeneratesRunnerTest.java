@@ -1,11 +1,8 @@
 package be.klak.junit.jasmine;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-import java.io.File;
-import java.io.IOException;
-
-
+import be.klak.junit.jasmine.classes.JasmineSuiteGeneratorClassWithRunner;
+import be.klak.junit.jasmine.classes.JasmineSuiteGeneratorClassWithRunnerInSubDir;
+import be.klak.junit.jasmine.classes.JasmineSuiteGeneratorClassWithoutRunner;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -15,10 +12,10 @@ import org.junit.runner.notification.RunNotifier;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import be.klak.junit.jasmine.JasmineTestRunner;
-import be.klak.junit.jasmine.classes.JasmineSuiteGeneratorClassWithRunner;
-import be.klak.junit.jasmine.classes.JasmineSuiteGeneratorClassWithRunnerInSubDir;
-import be.klak.junit.jasmine.classes.JasmineSuiteGeneratorClassWithoutRunner;
+import java.io.File;
+import java.io.IOException;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JasmineSuiteGeneratesRunnerTest {
@@ -42,6 +39,23 @@ public class JasmineSuiteGeneratesRunnerTest {
     }
 
     @Test
+    public void outputsClasspathLibrariesWithRunner() throws IOException {
+        Class<JasmineSuiteGeneratorClassWithRunner> testClass = JasmineSuiteGeneratorClassWithRunner.class;
+        new JasmineTestRunner(testClass).run(notifierMock);
+
+        File runnerResult = getTestRunnerResultFile(testClass);
+        assertThat(runnerResult.isFile()).isTrue();
+
+        String runnerContent = FileUtils.readFileToString(runnerResult);
+
+        assertJSFileIncluded(runnerContent,
+                "file://" + new File(runnerResult.getParent(), "jasmine.js").getAbsolutePath(),
+                "file://" + new File(runnerResult.getParent(), "jasmine-html.js").getAbsolutePath());
+        assertCssFileIncluded(runnerContent,
+                "file://" + new File(runnerResult.getParent(), "jasmine.css").getAbsolutePath());
+    }
+
+    @Test
     public void generateJasmineTestRunnerAfterRunningTests() throws IOException {
         Class<JasmineSuiteGeneratorClassWithRunner> testClass = JasmineSuiteGeneratorClassWithRunner.class;
         new JasmineTestRunner(testClass).run(notifierMock);
@@ -53,10 +67,10 @@ public class JasmineSuiteGeneratesRunnerTest {
 
         assertThat(runnerContent).contains("jasmine.getEnv().addReporter(new jasmine.TrivialReporter());");
         assertJSFileIncluded(runnerContent,
-                "./../../../main/webapp/js/source1.js",
-                "./../../../main/webapp/js/source2.js",
-                "./../specs/spec1.js",
-                "./../specs/spec2.js");
+                "file://" + new File("src/test/javascript/sources/source1.js").getAbsolutePath(),
+                "file://" + new File("src/test/javascript/sources/source2.js").getAbsolutePath(),
+                "file://" + new File("src/test/javascript/specs/spec1.js").getAbsolutePath(),
+                "file://" + new File("src/test/javascript/specs/spec2.js").getAbsolutePath());
     }
 
     @Test
@@ -72,20 +86,16 @@ public class JasmineSuiteGeneratesRunnerTest {
 
       assertThat(runnerContent).contains("jasmine.getEnv().addReporter(new jasmine.TrivialReporter());");
       assertJSFileIncluded(runnerContent,
-              "./../../../main/webapp/js/source1.js",
-              "./../../../main/webapp/js/source2.js",
-              "./../specs/spec1.js",
-              "./../specs/spec2.js");
+              "file://" + new File("src/test/javascript/sources/source1.js").getAbsolutePath(),
+              "file://" + new File("src/test/javascript/sources/source2.js").getAbsolutePath(),
+              "file://" + new File("src/test/javascript/specs/spec1.js").getAbsolutePath(),
+              "file://" + new File("src/test/javascript/specs/spec2.js").getAbsolutePath());
 
     }
 
     private File getTestRunnerResultFile(Class<?> testClass) {
         return getTestRunnerResultFile(testClass, StringUtils.EMPTY);
     }
-
-//    private File getTestRunnerResultFile(Class<?> testClass) {
-//      return new File(RUNNERS_OUTPUT_DIR + testClass.getSimpleName() + "Runner.html");
-//  }
 
     private File getTestRunnerResultFile(Class<?> testClass, String subDir) {
       StringBuffer filePath = new StringBuffer(RUNNERS_OUTPUT_DIR);
@@ -99,6 +109,12 @@ public class JasmineSuiteGeneratesRunnerTest {
     private void assertJSFileIncluded(String rawContent, String... files) {
         for (String file : files) {
             assertThat(rawContent).contains("<script type='text/javascript' src='" + file + "'></script>");
+        }
+    }
+
+    private void assertCssFileIncluded(String rawContent, String... files) {
+        for (String file : files) {
+            assertThat(rawContent).contains("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + file + "\">");
         }
     }
 }
