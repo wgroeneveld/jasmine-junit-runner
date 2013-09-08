@@ -23,7 +23,7 @@ public class JasmineTestRunner extends Runner {
 	private static final int SLEEP_TIME_MILISECONDS = 50;
 
 	// relative to classpath
-	private static final String JASMINE_LIB_DIR = "js/lib/jasmine-1.0.2";
+	private static final String JASMINE_LIB_DIR = "js/lib/jasmine-1.3.1";
 
 	private JasmineDescriptions jasmineSuite;
 
