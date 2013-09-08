@@ -5,6 +5,8 @@ import org.mozilla.javascript.ScriptableObject;
 
 class JasmineSpecFailureException extends Exception {
 
+	private static final long serialVersionUID = 1L;
+	
 	private final ScriptableObject trace;
 
 	public JasmineSpecFailureException(NativeObject specResultItem) {
@@ -13,7 +15,7 @@ class JasmineSpecFailureException extends Exception {
 
 	@Override
 	public String getMessage() {
-		return (String) trace.get("message", trace);
+		return (String) trace.get("message", trace).toString();
 	}
 
 }
