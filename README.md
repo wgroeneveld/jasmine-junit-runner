@@ -193,9 +193,9 @@ Your awesome test (example 1) would for instance generate this html file:
 <html>
 	<head>
 		<title>Jasmine Test Runner</title>
-		<link rel="stylesheet" type="text/css" href="./../lib/jasmine-1.0.2/jasmine.css">
-		<script type="text/javascript" src="./../lib/jasmine-1.0.2/jasmine.js"></script>
-		<script type="text/javascript" src="./../lib/jasmine-1.0.2/jasmine-html.js"></script>
+		<link rel="stylesheet" type="text/css" href="./../lib/jasmine-1.3.1/jasmine.css">
+		<script type="text/javascript" src="./../lib/jasmine-1.3.1/jasmine.js"></script>
+		<script type="text/javascript" src="./../lib/jasmine-1.3.1/jasmine-html.js"></script>
 		
 		<script type='text/javascript' src='./../../../main/webapp/js/jquery.js'></script>
 		<script type='text/javascript' src='./../../../main/webapp/js/myawesomecode.js'></script>
