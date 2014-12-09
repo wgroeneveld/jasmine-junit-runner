@@ -1,8 +1,10 @@
 package be.klak.rhino;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
+import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.ScriptableObject;
 
@@ -79,6 +81,21 @@ public class RhinoContextTest {
 
         assertThat(context.evalJS("loaded")).isEqualTo(true);
         assertThat(context.evalJS("loadedTwo")).isEqualTo(true);
+    }
+
+    @Test
+    public void loadGlob() {
+        RhinoContext context = new RhinoContext();
+        context.load("src/test/javascript/", "globLoadTest/g*.js");
+
+        assertThat(context.evalJS("glob1")).isEqualTo(1.0);
+        assertThat(context.evalJS("glob2")).isEqualTo(2.0);
+        try {
+            context.evalJS("notGlobbed");
+            fail("notGlobbed should not have been loaded");
+        } catch (EcmaError e) {
+            // TODO need a better way to detect that it was not loaded
+        }
     }
 
     // {{{ loadsJSFilesFromClasspath

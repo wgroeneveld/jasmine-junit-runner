@@ -100,8 +100,8 @@ You can still use Firebug to debug when generating a specRunner HTML file (see b
 * debug: use the built-in Rhino debugger (gives you the chance to set a breakpoint before firing the test suite)
 * jsRootDir: the javascript install root dir. Jasmine and other should be installed here (see source)
 * sourcesRootDir: your production JS files root dir.
-* specs: one or more spec file to run. Default behavior: use java Class name (replaces Test with Spec, see example)
-* sources: one or more JS production file which your spec needs (included before specs, d'uh)
+* specs: one or more spec file to run. You may also use the [glob syntax described here](https://docs.oracle.com/javase/7/docs/api/java/nio/file/FileSystem.html#getPathMatcher%28java.lang.String%29).For example to load all javascript files in subdir use subdir/*.js. Default behavior: use java Class name (replaces Test with Spec, see example).
+* sources: one or more JS production file which your spec needs (included before specs, d'uh). You can use the same glob syntax as the specs option.
 * generateSpecRunner: (the HTML output, useful for firefox/firebug debugging etc)
 * specRunnerSubDir: a subsidiary path to the default runner root directory where generated spec runners will be placed
 * envJs: load EnvJS support (defaults to true)
