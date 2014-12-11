@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import org.apache.commons.io.FilenameUtils;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Function;
@@ -146,7 +148,8 @@ public class RhinoContext {
 	}
 
 	private void load(String fileName) {
-		evalJS("load('" + fileName + "')");
+		String path = FilenameUtils.separatorsToUnix(fileName);
+		evalJS("load('" + path + "')");
 		// Main.processFile(this.jsContext, this.jsScope, fileName);
 	}
 
