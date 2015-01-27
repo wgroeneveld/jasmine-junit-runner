@@ -1,6 +1,21 @@
 package be.klak.rhino;
 
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.PriorityQueue;
+
+import org.apache.commons.io.FilenameUtils;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
@@ -77,14 +92,64 @@ public class RhinoContext {
 		}
 	}
 
+
 	public void load(String path, String... jsFiles) {
-		for (String jsFile : jsFiles) {
-			load(path + jsFile);
+		try {
+			List<Path> files = getFiles(path, jsFiles);
+			for (Path file: files) {
+				load(file.toString());
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
-	public void load(String fileName) {
-		evalJS("load('" + fileName + "')");
+	private List<Path> getFiles(String root, String... globs) throws IOException {
+		// Use a priority queue as the order of the files may make a difference
+		final PriorityQueue<MatchResult> matchResults = new PriorityQueue<>();
+		if (Paths.get(root).toFile().exists()) {
+			final List<PathMatcher> pathMatchers = getPathMatchers(root, globs);
+			Files.walkFileTree(Paths.get(root), new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					MatchResult matchResult = match(file, pathMatchers);
+					if (matchResult != null) {
+						matchResults.add(matchResult);
+					};
+					return super.visitFile(file, attrs);
+				}
+			});
+		}
+		List<Path> paths = new ArrayList<>();
+		for (MatchResult matchResult : matchResults) {
+			paths.add(matchResult.path);
+		}
+		return paths;
+	}
+
+	private List<PathMatcher> getPathMatchers(String root, String[] globs) {
+		List<PathMatcher> matchers = new ArrayList<>();
+		for (String glob : globs) {
+			matchers.add(FileSystems.getDefault().getPathMatcher("glob:" + root + glob));
+		}
+		return matchers;
+	}
+
+
+	private MatchResult match(Path file,
+			List<PathMatcher> pathMatchers) {
+		MatchResult matchResult = null;
+		for (int i = 0; i < pathMatchers.size() && matchResult == null; i++) {
+			if (pathMatchers.get(i).matches(file)) {
+				matchResult = new MatchResult(i, file);
+			}
+		}
+		return matchResult;
+	}
+
+	private void load(String fileName) {
+		String path = FilenameUtils.separatorsToUnix(fileName);
+		evalJS("load('" + path + "')");
 		// Main.processFile(this.jsContext, this.jsScope, fileName);
 	}
 
@@ -95,14 +160,14 @@ public class RhinoContext {
 	 * @param resource the resource to resolve from the classpath
 	 */
 	public void loadFromClasspath(final String resource) {
-	    URL rsrcUrl =
-	    	Thread.currentThread().getContextClassLoader().getResource(resource);
+		URL rsrcUrl =
+			Thread.currentThread().getContextClassLoader().getResource(resource);
 
-	    if (rsrcUrl == null) {
-	    	throw new IllegalArgumentException("resource " + resource + " not found on classpath");
-	    }
+		if (rsrcUrl == null) {
+			throw new IllegalArgumentException("resource " + resource + " not found on classpath");
+		}
 
-	    evalJS(String.format("load('%s')", rsrcUrl.toExternalForm()));
+		evalJS(String.format("load('%s')", rsrcUrl.toExternalForm()));
 	}
 	// }}}
 
@@ -149,5 +214,22 @@ public class RhinoContext {
 
 	public void exit() {
 		Context.exit();
+	}
+
+	private static class MatchResult implements Comparable<MatchResult> {
+
+		private final int position;
+		private final Path path;
+
+		public MatchResult(int position, Path path) {
+			this.position = position;
+			this.path = path;
+		}
+
+		@Override
+		public int compareTo(MatchResult o) {
+			return position - o.position;
+		}
+
 	}
 }
