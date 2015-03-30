@@ -228,6 +228,7 @@ public class JasmineTestRunner extends Runner {
 			notifier.fireTestFinished(spec.getDescription());
 		} else if (spec.isFailed(rhinoContext)) {
 			notifier.fireTestFailure(spec.getJunitFailure(rhinoContext));
+			notifier.fireTestFinished(spec.getDescription());
 		} else {
 			throw new IllegalStateException("Unexpected spec status received: " + spec);
 		}
