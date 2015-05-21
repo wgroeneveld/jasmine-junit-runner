@@ -32,6 +32,7 @@ public class JasmineFailingSpecsTest {
         ArgumentCaptor<Description> descriptionCaptor = ArgumentCaptor.forClass(Description.class);
         verify(notifierMock).fireTestStarted(descriptionCaptor.capture());
         verify(notifierMock).fireTestFailure(failureCaptor.capture());
+        verify(notifierMock).fireTestFinished(descriptionCaptor.capture());
         verifyNoMoreInteractions(notifierMock);
 
         Failure failure = failureCaptor.getValue();
@@ -50,6 +51,7 @@ public class JasmineFailingSpecsTest {
         ArgumentCaptor<Description> descriptionCaptor = ArgumentCaptor.forClass(Description.class);
         verify(notifierMock).fireTestStarted(descriptionCaptor.capture());
         verify(notifierMock).fireTestFailure(failureCaptor.capture());
+        verify(notifierMock).fireTestFinished(descriptionCaptor.capture());
         verifyNoMoreInteractions(notifierMock);
 
         Failure failure = failureCaptor.getValue();
